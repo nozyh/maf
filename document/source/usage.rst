@@ -528,13 +528,13 @@ advancedな話題として、このように記述することで、全てのパ
    exp(target='output',
        parameters=maflib.util.product({'A': [0, 1, 2],
                                        'B': [-1, 0, 1]}),
-       rule=train)
+       rule=train(input='/path/to/input')) # 入力ファイルのパスは固定なので引数により指定
 
        @maflib.util.rule
        def train(task):
            task.outputs[0].mkdir()
            subprocess.check_call(['train', '-A', task.parameter['A'], '-B', task.parameter['B'],
-                                  '-i input_path', '-o', task.outputs[0]])
+                                  '-i', task.parameter['input'], '-o', task.outputs[0]])
 
 上記の ``task.outputs[0].mkdir()`` は、出力ノードのパスの位置にディレクトリを生成します。
 ``task.outputs[i]`` はwafの `Nodeクラス <http://docs.waf.googlecode.com/git/apidocs_17/Node.html>`_ のインスタンスになっていて、Nodeクラスに定義されているファイル操作の機能を使うことができます。
@@ -555,7 +555,7 @@ advancedな話題として、このように記述することで、全てのパ
         import time
         begin = time.clock()
         subprocess.check_call(['train', '-A', task.parameter['A'], '-B', task.parameter['B'],
-                                 '-i input_path', '-o', task.outputs[0]])            
+                               '-i', task.parameter['input'], '-o', task.outputs[0]])
         sec = time.clock() - begin
         task.outputs[0].find_or_declare("time").write(str(sec))
 
