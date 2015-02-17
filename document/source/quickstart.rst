@@ -317,6 +317,53 @@ LIBLINEARの出力をjsonに変換するには、この用意された関数を�
 ``for_each`` を使うタスクは一般に集約タスクと呼ばれます。
 これについての詳細は、 ... をご覧ください。
 
+実験設定の追加
+~~~~~~~~~~~~~~
+
+これまではmafを、パラメータの組み合わせを変化させた場合のグラフの簡単描画ツールのように説明してきました。
+そういう側面もあるのですが、mafのもう一つの売りは、実験結果を構造的に管理することで、結果の再利用がしやすくなる点です。
+言い換えると、実験の条件を書き換えたり修正した場合、まだ実行されていない、実行する必要のあるタスクだけを自動的に実行します。
+
+例えば Figure :num:`c-vs-accuracy` で、大まかに ``C`` を大きくするほど精度が良くなる傾向が見られるので、より大きな ``C=10`` での実験も追加してグラフを書きたいとします。
+この場合、次のように最初 ``exp`` の ``C`` に値を追加しましょう。
+
+.. code-block:: python
+
+       'C': [0.001, 0.01, 0.1, 1, 10]}),
+
+その後再実行を行うと、 ``C=10`` まで含んだグラフを得ることができます。
+
+.. code-block:: python
+
+   $ ./waf build
+   Waf: Entering directory `/Users/noji/private-maf/experiment/build'
+   [20/61] 16-model: mnist.scale -> build/model/16-model
+   [21/61] 17-model: mnist.scale -> build/model/17-model
+   ...
+   [61/61] accuracy.png: build/accuracy.json/4-accuracy.json build/accuracy.json/10-accuracy.json ...
+   
+この際に、訓練や評価などは、 ``C=10`` の設定が関わる部分だけが追加で実行されます。
+最後のプロットは全ての結果をまとめるので、新しく得られた結果があればそれを関知し、更新します。
+
+これとは逆に、 ``C`` の値を減らした場合、例えば
+
+.. code-block:: python
+
+       'C': [0.001, 0.01, 0.1]}),
+
+とすると、すでに必要な結果は全て揃っていますが、グラフを描く際の範囲が変化したことを関知し、
+
+.. code-block:: python
+
+   $ ./waf build
+   Waf: Entering directory `/Users/noji/private-maf/experiment/build'
+   [37/37] accuracy.png: build/accuracy.json/4-accuracy.json build/accuracy.json/10-accuracy.json ...
+
+と、グラフ描画を新しく行います。
+新しいグラフには、 ``C`` が ``0.1`` 以下の範囲で結果が描画されます。
+
+このように ``wscript`` を書き換えて再実行する場合、その都度バージョン管理で結果を保持しておくことをお勧めします。
+TODO: もうちょっと書く。
 
 別の実験：データ量を変化させる
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
