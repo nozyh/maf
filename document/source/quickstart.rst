@@ -59,6 +59,14 @@ mafでは実験の手順を ``wscript`` というファイルに記述してい�
 この ``${TGT}`` の対応が、 ``target`` 変数で指定されています。
 mafでは実験途中のモデルや結果を繋げて処理を行っていきますが、このように結果は全て ``build`` ディレクトリ以下に作られます。
 
+``./waf build`` がメインのコマンドですが、これは頻繁に使うので、 ``build`` を省略しても良いことになっています。
+
+.. code-block:: sh
+
+   $ ./waf     # ./waf build の省略形
+
+以下の例では、このように ``build`` を省略します。
+
 実際の実験例
 ------------
 
@@ -114,7 +122,7 @@ LIBLINEARがマシンにインストールされていない場合は事前に�
 図を描くためのwscript
 ~~~~~~~~~~~~~~~~~~~~~
 
-wscript を以下のように書き換えて実行 ( ``./waf build`` ) すると、Figure :num:`c-vs-accuracy` を得ることができます。
+wscript を以下のように書き換えて実行 ( ``./waf`` ) すると、Figure :num:`c-vs-accuracy` を得ることができます。
 結果は ``build/accuracy.png`` に得られます。
 
 .. code-block:: python
@@ -335,7 +343,7 @@ LIBLINEARの出力をjsonに変換するには、この用意された関数を�
 
 .. code-block:: python
 
-   $ ./waf build
+   $ ./waf
    Waf: Entering directory `/Users/noji/private-maf/experiment/build'
    [20/61] 16-model: mnist.scale -> build/model/16-model
    [21/61] 17-model: mnist.scale -> build/model/17-model
@@ -355,7 +363,7 @@ LIBLINEARの出力をjsonに変換するには、この用意された関数を�
 
 .. code-block:: python
 
-   $ ./waf build
+   $ ./waf
    Waf: Entering directory `/Users/noji/private-maf/experiment/build'
    [37/37] accuracy.png: build/accuracy.json/4-accuracy.json build/accuracy.json/10-accuracy.json ...
 
