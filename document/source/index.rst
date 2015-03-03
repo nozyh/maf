@@ -12,6 +12,7 @@ https://github.com/pfi/maf で開発されています。
 .. toctree::
    :maxdepth: 2
 
+   quickstart
    tutorial/index
 
 古いドキュメント
