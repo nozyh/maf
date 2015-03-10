@@ -95,18 +95,18 @@ mafを使えば、Figure :num:`c-vs-accuracy` のような特定のパラメー�
 データとツールの準備
 ~~~~~~~~~~~~~~~~~~~~
 
-ここでは実験用のツールとして `LIBLINEAR <http://www.csie.ntu.edu.tw/~cjlin/liblinear/>`_ を、データとして `MNIST <http://yann.lecun.com/exdb/mnist/>`_ という画像処理の分類タスク用のデータを用います。
+ここでは実験用のツールとして `LIBLINEAR <http://www.csie.ntu.edu.tw/~cjlin/liblinear/>`_ を、データとして `20 News <http://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass.html#news20>`_ という文書分類タスク用のデータを用います。
 LIBLINEARは各データが特徴ベクトルに変換された入力を必要としますが、MNIST をこの形式に変換したデータが手に入るのでこれを使いましょう。
 
 .. code-block:: sh
 
-   $ wget http://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass/mnist.scale.bz2
-   $ wget http://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass/mnist.scale.t.bz2
+   $ wget http://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass/news20.scale.bz2
+   $ wget http://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass/news20.t.scale.bz2
    $ bunzip2 *.bz2
    $ ls
-   maf.py  mnist.scale  mnist.scale.t  waf   wscript
+   maf.py  news20.scale  news20.t.scale  waf   wscript
 
-``mnist.scale`` が訓練データ、 ``mnist.scale.t`` がテストデータです。
+``news20.scale`` が訓練データ、 ``news20.t.scale`` がテストデータです。
 
 LIBLINEARがマシンにインストールされていない場合は事前にインストールが必要です。
 以下は各種パッケージ管理でのインストール例です。
@@ -134,14 +134,14 @@ wscript を以下のように書き換えて実行 ( ``./waf`` ) すると、Fig
    def configure(conf): pass
 
    def build(exp):
-       exp(source='mnist.scale',                 # exp(...) を複数定義すると、それらが順に実行される
+       exp(source='news20.scale',                # exp(...) を複数定義すると、それらが順に実行される
            target='model',
            parameters=maflib.util.product({
                's': [0, 1, 2, 3],
                'C': [0.001, 0.01, 0.1, 1]}),
            rule='liblinear-train -s ${s} -c ${C} ${SRC} ${TGT} > /dev/null')
     
-       exp(source='mnist.scale.t model',
+       exp(source='news20.t.scale model',
            target='accuracy',
            rule='liblinear-predict ${SRC} /dev/null > ${TGT}')
 
@@ -194,7 +194,7 @@ mafではこのようなパラメータの組み合わせを保持すること�
 
 .. code-block:: python
 
-   exp(source='mnist.scale',
+   exp(source='news20.scale',
        target='model',
        parameters=maflib.util.product({
            's': [0, 1, 2, 3],
@@ -208,12 +208,12 @@ mafではこのようなパラメータの組み合わせを保持すること�
 
 .. code-block:: sh
 
-   $ liblinear-train -s 0 -c 0.001 mnist.scale build/model/0-model > /dev/null
-   $ liblinear-train -s 1 -c 0.001 mnist.scale build/model/1-model > /dev/null
-   $ liblinear-train -s 2 -c 0.001 mnist.scale build/model/2-model > /dev/null
+   $ liblinear-train -s 0 -c 0.001 news20.scale build/model/0-model > /dev/null
+   $ liblinear-train -s 1 -c 0.001 news20.scale build/model/1-model > /dev/null
+   $ liblinear-train -s 2 -c 0.001 news20.scale build/model/2-model > /dev/null
    ...
-   $ liblinear-train -s 2 -c 1 mnist.scale build/model/14-model > /dev/null
-   $ liblinear-train -s 3 -c 1 mnist.scale build/model/15-model > /dev/null
+   $ liblinear-train -s 2 -c 1 news20.scale build/model/14-model > /dev/null
+   $ liblinear-train -s 3 -c 1 news20.scale build/model/15-model > /dev/null
 
 このように全てのパラメータの組に対して訓練が実行され、各実行で ``${s}`` などの部分が代入されています。
 また ``${TGT}`` の代入のされ方は先ほどと似ていますが、 ``build/model/0-model`` のように、 ``target`` で指定した出力先はディレクトリとなり、その中にパラメータ別の結果がまとめられます。
@@ -225,7 +225,7 @@ mafではこのようなパラメータの組み合わせを保持すること�
 
 .. code-block:: python
 
-   exp(source='mnist.scale.t model',
+   exp(source='news20.t.scale model',
        target='accuracy',
        rule='liblinear-predict ${SRC} /dev/null > ${TGT}')
 
@@ -234,16 +234,16 @@ mafではこのようなパラメータの組み合わせを保持すること�
 
 .. code-block:: sh
 
-   $ liblinear-predict mnist.scale.t build/model/0-model /dev/null > build/accuracy/0-accuracy
-   $ liblinear-predict mnist.scale.t build/model/1-model /dev/null > build/accuracy/1-accuracy
+   $ liblinear-predict news20.t.scale build/model/0-model /dev/null > build/accuracy/0-accuracy
+   $ liblinear-predict news20.t.scale build/model/1-model /dev/null > build/accuracy/1-accuracy
    ...
-   $ liblinear-predict mnist.scale.t build/model/15-model /dev/null > build/accuracy/16-accuracy
+   $ liblinear-predict news20.t.scale build/model/15-model /dev/null > build/accuracy/16-accuracy
 
 これを見ると以下のことが分かります。
 
 1. ``${SRC}`` には、指定した ``source`` が展開された値が代入されます。
-   ``source`` には ``'mnist.scale.t model'`` のように複数の値を指定することができます。
-   このうち ``mnist.scale.t`` は現在のディレクトリのファイルを指し、全ての実行で変わりませんが、 ``model`` は例のように、先ほど作られた ``build/model/`` 以下のファイルが順に指定され、実行されます。
+   ``source`` には ``'news20.t.scale model'`` のように複数の値を指定することができます。
+   このうち ``news20.t.scale`` は現在のディレクトリのファイルを指し、全ての実行で変わりませんが、 ``model`` は例のように、先ほど作られた ``build/model/`` 以下のファイルが順に指定され、実行されます。
 2. ``${TGT}`` は、前回と似たように展開されます。
    今回は ``parameters`` を指定していませんが、代わりに ``model`` が一つ一つのパラメータの組み合わせと結びついているので、各 ``model`` 毎に、 ``build/accuracy`` 以下に結果が格納されます。
 
@@ -254,13 +254,13 @@ mafはこの依存関係を自動的に解決し、例えば
 
 .. code-block:: sh
 
-   $ liblinear-predict mnist.scale.t build/model/0-model /dev/null > build/accuracy/0-accuracy
+   $ liblinear-predict news20.t.scale build/model/0-model /dev/null > build/accuracy/0-accuracy
 
 というコマンドは、
 
 .. code-block:: sh
 
-   $ liblinear-train -s 0 -c 0.001 mnist.scale build/model/0-model > /dev/null
+   $ liblinear-train -s 0 -c 0.001 news20.scale build/model/0-model > /dev/null
 
 が終了し ``0-model`` が生成されるまで実行されません。
 
@@ -345,8 +345,8 @@ LIBLINEARの出力をjsonに変換するには、この用意された関数を�
 
    $ ./waf
    Waf: Entering directory `/Users/noji/private-maf/experiment/build'
-   [20/61] 16-model: mnist.scale -> build/model/16-model
-   [21/61] 17-model: mnist.scale -> build/model/17-model
+   [20/61] 16-model: news20.scale -> build/model/16-model
+   [21/61] 17-model: news20.scale -> build/model/17-model
    ...
    [61/61] accuracy.png: build/accuracy.json/4-accuracy.json build/accuracy.json/10-accuracy.json ...
    
@@ -398,9 +398,9 @@ wscriptは以下のようになります。
    def configure(conf): pass
 
    def build(exp):
-       exp(source='mnist.scale',
+       exp(source='news20.scale',
            target='traindata',
-           parameters=maflib.util.product({'datasize': [10000, 20000, 30000, 40000, 50000, 60000]}),
+           parameters=maflib.util.product({'datasize': [1000, 3000, 6000, 9000, 12000, 15000]}),
            rule='head -n ${datasize} ${SRC} > ${TGT}')
 
        exp(source='traindata',
@@ -408,7 +408,7 @@ wscriptは以下のようになります。
            parameters=maflib.util.product({'s': [0, 1, 2, 3]}),
            rule='liblinear-train -s ${s} -c 1.0 ${SRC} ${TGT} > /dev/null')
 
-       exp(source='mnist.scale.t model',
+       exp(source='news20.t.scale model',
            target='accuracy',
            rule='liblinear-predict ${SRC} /dev/null > ${TGT}')
 
@@ -427,7 +427,7 @@ wscriptは以下のようになります。
 基本的に先ほどとかなり似ています。
 異なるのは、主に最初の二つです。
 まず異なるサイズの訓練データ ``traindata`` を準備します。
-``mnist.scale`` は一行が一つの訓練例となっているので、これでOKです。
+``news20.scale`` は一行が一つの訓練例となっているので、これでOKです。
 二つ目の ``exp`` が先ほどの最初に対応しますが、今回は ``traindata`` を指定しているので、用意した異なる長さのデータ毎に、各パラメータで実行が行われます。
 このようにパラメータの設定は追加していくことが可能で、今回の例では ``model`` や ``accuracy`` などは、各 ``datasize`` と ``s`` の組み合わせ毎に結果が保持されます。
 
