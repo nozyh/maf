@@ -61,13 +61,13 @@ def build(exp):
     website = 'http://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass/'
 
     exp(target='news20.scale',
-        rule=maflib.rules.download('%s/news20.scale.bz2' % website, 'bz2'))
+        rule=maflib.rules.download(url='%s/news20.scale.bz2' % website, decompress_as='bz2'))
     exp(source='news20.scale',
         target='news20.scale.vw',
         rule=convert_libsvm_format_to_vowpal)
 
     exp(target='news20.t.scale',
-        rule=maflib.rules.download('%s/news20.t.scale.bz2' % website, 'bz2'))
+        rule=maflib.rules.download(url='%s/news20.t.scale.bz2' % website, decompress_as='bz2'))
     exp(source='news20.t.scale',
         target='news20.t.scale.vw',
         rule=convert_libsvm_format_to_vowpal)

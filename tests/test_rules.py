@@ -19,7 +19,7 @@ class TestAggregationTask(unittest.TestCase):
         task.set_input_by_json(0, {"key1":10, "key2":20})
         task.set_input_by_json(1, {"key1": 5, "key2":30})
 
-        rule = rules.max("key1")
+        rule = rules.max(key="key1")
         rule.fun(task)
 
         result = task.json_output(0)
@@ -32,7 +32,7 @@ class TestAggregationTask(unittest.TestCase):
         task.set_input_by_json(0, {"key1":10, "key2":20})
         task.set_input_by_json(1, {"key1": 5, "key2":30})
 
-        rule = rules.min("key1")
+        rule = rules.min(key="key1")
         rule.fun(task)
 
         result = task.json_output(0)
@@ -78,7 +78,7 @@ class TestSegmentLibsvm(unittest.TestCase):
         task.set_input(0, '\n'.join([' '.join([str(e) for e in line]) for line in data]) + '\n')
         task.outputs.setsize(3)
         
-        rule = rules.segment_without_label_bias(self.weights)
+        rule = rules.segment_without_label_bias(weights=self.weights)
         rule.fun(task)
         return task
     
