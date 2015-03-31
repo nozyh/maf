@@ -11,3 +11,4 @@ maf の使い方をひと通り学びたい人は、このチュートリアル�
    parameter
    parameter_combination
    own_rule
+   own_aggregator
